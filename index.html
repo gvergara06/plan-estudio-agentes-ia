@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plan de Estudio — Agentes de IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    /* Blueprint + AWS amber */
+    --ink-900:#071B33;
+    --ink-800:#0B2440;      /* blueprint deep */
+    --ink-700:#0C2B4E;
+    --paper:#EDF1F7;         /* cool drafting paper */
+    --card:#FFFFFF;
+    --line:#D3DDEA;          /* blueprint-tinted borders */
+    --line-soft:#E3E9F1;
+    --text:#324a63;          /* body */
+    --text-strong:#0C2B4E;   /* headings */
+    --text-mute:#6b7f95;
+    --amber:#FFA724;         /* progress / energy */
+    --amber-700:#D97B12;
+    --amber-glow:rgba(255,167,36,.22);
+    --blue:#1667B3;          /* links / structure */
+    --blue-600:#155a9c;
+    --grid:rgba(126,178,255,.09);
+
+    --r-lg:14px; --r-md:10px; --r-sm:7px;
+    --shadow:0 1px 2px rgba(12,43,78,.06), 0 8px 24px -12px rgba(12,43,78,.18);
+    --fs-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --fs-sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--paper); color:var(--text);
+    font-family:var(--fs-sans); font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--blue); text-decoration:none;}
+  a:hover{text-decoration:underline; text-underline-offset:2px;}
+  h1,h2,h3{color:var(--text-strong); margin:0; letter-spacing:-.01em;}
+
+  .eyebrow{
+    font-family:var(--fs-mono); font-size:.72rem; font-weight:500;
+    letter-spacing:.18em; text-transform:uppercase; color:var(--amber);
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative; color:#EAF1FB; overflow:hidden;
+    background-color:var(--ink-800);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size:28px 28px;
+    border-bottom:1px solid rgba(126,178,255,.16);
+  }
+  .hero::before{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(120% 90% at 88% -10%, var(--amber-glow), transparent 55%);
+    pointer-events:none;
+  }
+  .hero-inner{position:relative; max-width:1120px; margin:0 auto; padding:48px 28px 34px;}
+  .hero-top{display:flex; gap:36px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;}
+  .hero-lead{flex:1 1 380px; min-width:280px;}
+  .hero h1{
+    color:#fff; font-size:clamp(1.9rem,4.4vw,3rem); font-weight:700;
+    line-height:1.05; margin:14px 0 0;
+  }
+  .thesis{
+    margin-top:16px; font-size:1.06rem; color:#B9CCE6; max-width:46ch;
+  }
+  .thesis b{color:var(--amber); font-weight:600;}
+  .hero-meta{
+    margin-top:20px; display:flex; gap:8px 10px; flex-wrap:wrap;
+    font-family:var(--fs-mono); font-size:.74rem; color:#9fb6d6;
+  }
+  .chip{
+    border:1px solid rgba(126,178,255,.28); border-radius:100px;
+    padding:4px 11px; letter-spacing:.03em; white-space:nowrap;
+  }
+
+  /* progress ring cluster */
+  .gauge{flex:0 0 auto; display:flex; gap:22px; align-items:center;}
+  .ring-wrap{position:relative; width:126px; height:126px; flex:0 0 auto;}
+  .ring-wrap svg{transform:rotate(-90deg);}
+  .ring-track{fill:none; stroke:rgba(126,178,255,.22); stroke-width:9; stroke-dasharray:2 7; stroke-linecap:round;}
+  .ring-fill{fill:none; stroke:var(--amber); stroke-width:9; stroke-linecap:round;
+    transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1); filter:drop-shadow(0 0 6px var(--amber-glow));}
+  .ring-label{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center;
+  }
+  .ring-pct{font-family:var(--fs-mono); font-size:1.7rem; font-weight:600; color:#fff; line-height:1;}
+  .ring-sub{font-family:var(--fs-mono); font-size:.6rem; letter-spacing:.18em; color:#8fa8ca; margin-top:5px;}
+  .stats{display:flex; flex-direction:column; gap:12px;}
+  .stat{display:flex; align-items:baseline; gap:9px;}
+  .stat-n{font-family:var(--fs-mono); font-size:1.15rem; font-weight:600; color:var(--amber); min-width:58px;}
+  .stat-l{font-size:.8rem; color:#a9c0dd;}
+
+  /* pipeline signature */
+  .pipeline{position:relative; margin-top:34px; padding-top:6px;}
+  .pipeline-head{
+    font-family:var(--fs-mono); font-size:.66rem; letter-spacing:.2em;
+    text-transform:uppercase; color:#7f9abd; margin-bottom:14px;
+  }
+  .track{position:relative; display:flex; justify-content:space-between; gap:4px;}
+  .track::before{
+    content:""; position:absolute; left:11px; right:11px; top:11px; height:2px;
+    background:rgba(126,178,255,.2);
+  }
+  .track-fill{
+    position:absolute; left:11px; top:11px; height:2px; background:var(--amber);
+    box-shadow:0 0 8px var(--amber-glow);
+    transition:width .7s cubic-bezier(.4,0,.2,1); border-radius:2px; z-index:1;
+  }
+  .node{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center;
+    gap:8px; background:none; border:0; cursor:pointer; padding:0; flex:1 1 0; min-width:0;}
+  .node-dot{
+    width:22px; height:22px; border-radius:50%;
+    background:var(--ink-800); border:2px solid rgba(126,178,255,.4);
+    display:grid; place-items:center; transition:.35s ease;
+  }
+  .node-dot::after{content:""; width:7px; height:7px; border-radius:50%; background:transparent; transition:.35s;}
+  .node[data-state="partial"] .node-dot{border-color:var(--amber);}
+  .node[data-state="partial"] .node-dot::after{background:var(--amber); opacity:.5;}
+  .node[data-state="done"] .node-dot{border-color:var(--amber); background:var(--amber); box-shadow:0 0 0 4px var(--amber-glow);}
+  .node[data-state="done"] .node-dot::after{background:var(--ink-800); width:5px; height:5px;}
+  .node-tag{font-family:var(--fs-mono); font-size:.66rem; color:#9fb6d6; letter-spacing:.06em; transition:.3s;}
+  .node[data-state="done"] .node-tag, .node[data-state="partial"] .node-tag{color:#EAF1FB;}
+  .node:hover .node-tag{color:var(--amber);}
+  .node:focus-visible{outline:2px solid var(--amber); outline-offset:4px; border-radius:6px;}
+
+  /* controls */
+  .controls{
+    margin-top:30px; padding-top:20px; border-top:1px solid rgba(126,178,255,.16);
+    display:flex; align-items:center; gap:12px 16px; flex-wrap:wrap;
+  }
+  .btn{
+    font-family:var(--fs-mono); font-size:.75rem; letter-spacing:.04em;
+    border:1px solid rgba(126,178,255,.3); background:rgba(126,178,255,.06);
+    color:#DCE8F8; padding:8px 14px; border-radius:var(--r-sm); cursor:pointer;
+    transition:.2s ease; display:inline-flex; align-items:center; gap:7px;
+  }
+  .btn:hover{background:rgba(255,167,36,.14); border-color:var(--amber); color:#fff;}
+  .btn.danger:hover{background:rgba(255,107,107,.16); border-color:#ff8a8a;}
+  .save-note{font-family:var(--fs-mono); font-size:.72rem; color:#8fa8ca; margin-left:auto;}
+  .save-note b{color:var(--amber); font-weight:500;}
+
+  /* ---------- LAYOUT ---------- */
+  .shell{max-width:1120px; margin:0 auto; padding:40px 28px 90px;
+    display:grid; grid-template-columns:210px 1fr; gap:44px; align-items:start;}
+  nav.side{position:sticky; top:22px; display:flex; flex-direction:column; gap:3px;}
+  .side-head{font-family:var(--fs-mono); font-size:.66rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--text-mute); padding:0 10px 8px;}
+  .side-link{
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:var(--r-sm);
+    color:var(--text); font-size:.86rem; border:1px solid transparent; transition:.15s;
+  }
+  .side-link:hover{background:#fff; border-color:var(--line-soft); text-decoration:none;}
+  .side-tag{font-family:var(--fs-mono); font-size:.68rem; color:var(--text-mute); width:26px; flex:0 0 auto;}
+  .side-pct{margin-left:auto; font-family:var(--fs-mono); font-size:.66rem; color:var(--amber-700);}
+  .side-link.complete .side-tag{color:var(--amber-700);}
+
+  main{min-width:0;}
+
+  .intro{
+    background:linear-gradient(180deg,#fff,#fbfcfe); border:1px solid var(--line);
+    border-left:3px solid var(--amber); border-radius:var(--r-md);
+    padding:20px 22px; margin-bottom:30px; box-shadow:var(--shadow);
+  }
+  .intro p{margin:0 0 10px;}
+  .intro p:last-child{margin-bottom:0;}
+  .intro .rule{color:var(--text-strong); font-weight:600;}
+
+  /* phase card */
+  .phase{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg);
+    margin-bottom:20px; box-shadow:var(--shadow); overflow:hidden;
+    scroll-margin-top:20px;
+  }
+  .phase[open]{border-color:#c3d2e4;}
+  summary.phase-head{
+    list-style:none; cursor:pointer; padding:20px 22px;
+    display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:center;
+  }
+  summary.phase-head::-webkit-details-marker{display:none;}
+  .num{
+    font-family:var(--fs-mono); font-weight:600; font-size:.9rem;
+    color:var(--amber-700); background:#FFF3E0; border:1px solid #FADBA6;
+    border-radius:var(--r-sm); padding:7px 10px; min-width:52px; text-align:center;
+    line-height:1.1;
+  }
+  .phase[data-state="done"] .num{background:var(--amber); color:#fff; border-color:var(--amber);}
+  .htitle h2{font-size:1.12rem; font-weight:600;}
+  .htitle .weeks{font-family:var(--fs-mono); font-size:.72rem; color:var(--text-mute); margin-top:3px; letter-spacing:.02em;}
+  .hprog{display:flex; align-items:center; gap:11px; min-width:118px;}
+  .bar{flex:1; height:6px; background:var(--line-soft); border-radius:100px; overflow:hidden; min-width:56px;}
+  .bar > i{display:block; height:100%; width:0; background:var(--amber); border-radius:100px;
+    transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .hprog .p{font-family:var(--fs-mono); font-size:.74rem; color:var(--text-mute); width:34px; text-align:right;}
+  .chev{color:var(--text-mute); transition:transform .25s; flex:0 0 auto;}
+  .phase[open] .chev{transform:rotate(90deg);}
+
+  .phase-body{padding:2px 22px 22px; border-top:1px solid var(--line-soft);}
+  .objective{color:var(--text); font-size:.95rem; margin:16px 0 18px; padding-left:14px; border-left:2px solid var(--line);}
+  .objective b{color:var(--text-strong);}
+
+  .items{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;}
+  .item{display:flex; gap:12px; align-items:flex-start; padding:9px 8px; border-radius:var(--r-sm); transition:background .15s;}
+  .item:hover{background:#f7f9fc;}
+  .item input{
+    appearance:none; -webkit-appearance:none; flex:0 0 auto; margin:2px 0 0;
+    width:19px; height:19px; border:2px solid #c3cfdd; border-radius:5px;
+    background:#fff; cursor:pointer; position:relative; transition:.15s;
+  }
+  .item input:hover{border-color:var(--amber);}
+  .item input:checked{background:var(--amber); border-color:var(--amber);}
+  .item input:checked::after{
+    content:""; position:absolute; left:5px; top:1px; width:5px; height:10px;
+    border:solid #fff; border-width:0 2.5px 2.5px 0; transform:rotate(43deg);
+  }
+  .item input:focus-visible{outline:2px solid var(--blue); outline-offset:2px;}
+  .item label{cursor:pointer; font-size:.93rem; color:var(--text); flex:1;}
+  .item input:checked ~ label{color:var(--text-mute); text-decoration:line-through; text-decoration-color:#c3cfdd;}
+  .item .lk{display:inline-block; margin-left:6px; font-family:var(--fs-mono); font-size:.7rem; color:var(--blue);}
+  .item .lk:hover{color:var(--amber-700);}
+  .item.deliv{background:#FFF8EE; border:1px dashed #F3C77E; margin-top:8px;}
+  .item.deliv label{color:var(--text-strong); font-weight:500;}
+  .item.deliv label::before{content:"Entregable · "; font-family:var(--fs-mono); font-size:.68rem; letter-spacing:.06em; color:var(--amber-700); font-weight:600;}
+  .item.deliv input:checked ~ label{color:var(--text-mute);}
+  .item.opt label::after{content:" · opcional"; font-family:var(--fs-mono); font-size:.68rem; color:var(--text-mute);}
+
+  .subhead{font-family:var(--fs-mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--text-mute); margin:20px 0 6px; padding-left:8px;}
+
+  .notes{margin-top:16px;}
+  .notes label{font-family:var(--fs-mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:var(--text-mute); display:block; margin-bottom:6px;}
+  .notes textarea{
+    width:100%; min-height:56px; resize:vertical; font-family:var(--fs-sans); font-size:.9rem;
+    color:var(--text); border:1px solid var(--line); border-radius:var(--r-sm); padding:10px 12px;
+    background:#fbfcfe; transition:.15s;
+  }
+  .notes textarea:focus{outline:none; border-color:var(--amber); background:#fff; box-shadow:0 0 0 3px var(--amber-glow);}
+
+  /* stack section (repo courses / cronograma) */
+  .section{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg);
+    padding:24px 22px; margin-bottom:20px; box-shadow:var(--shadow); scroll-margin-top:20px;
+  }
+  .section > h2{font-size:1.12rem; margin-bottom:4px;}
+  .section > .lead{font-size:.92rem; color:var(--text-mute); margin:0 0 18px;}
+
+  .courses{display:grid; gap:10px;}
+  .course{border:1px solid var(--line-soft); border-radius:var(--r-md); padding:13px 15px; background:#fbfcfe;}
+  .course h3{font-size:.96rem; display:flex; gap:8px; align-items:baseline;}
+  .course h3 .ct{font-family:var(--fs-mono); font-size:.7rem; color:var(--amber-700); border:1px solid #FADBA6; background:#FFF3E0; padding:2px 7px; border-radius:5px;}
+  .course p{margin:6px 0 0; font-size:.88rem;}
+  .course .maps{font-family:var(--fs-mono); font-size:.72rem; color:var(--text-mute); margin-top:7px;}
+  .callout{background:#F1F6FC; border:1px solid #d5e3f2; border-radius:var(--r-sm); padding:12px 14px; margin-top:14px; font-size:.85rem; color:var(--text);}
+  .callout b{color:var(--blue-600);}
+
+  /* cronograma */
+  .weeks-list{display:flex; flex-direction:column; gap:4px;}
+  .wk{display:grid; grid-template-columns:auto auto 1fr auto; gap:12px; align-items:center;
+    padding:10px 10px; border-radius:var(--r-sm); border:1px solid transparent; transition:.15s;}
+  .wk:hover{background:#f7f9fc; border-color:var(--line-soft);}
+  .wk input{appearance:none;-webkit-appearance:none; width:19px;height:19px;border:2px solid #c3cfdd;border-radius:5px;background:#fff;cursor:pointer;position:relative;flex:0 0 auto;transition:.15s;}
+  .wk input:hover{border-color:var(--amber);}
+  .wk input:checked{background:var(--amber);border-color:var(--amber);}
+  .wk input:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(43deg);}
+  .wk input:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+  .wk .wn{font-family:var(--fs-mono); font-size:.74rem; color:var(--text-mute); width:64px;}
+  .wk .wf{font-size:.9rem; color:var(--text);}
+  .wk input:checked ~ .wf{color:var(--text-mute); text-decoration:line-through; text-decoration-color:#c3cfdd;}
+  .wk .milestone{font-family:var(--fs-mono); font-size:.7rem; color:var(--amber-700); background:#FFF3E0; border:1px solid #FADBA6; padding:3px 9px; border-radius:100px; white-space:nowrap;}
+  .wk.hit{background:#FFFaf2;}
+
+  footer{max-width:1120px; margin:0 auto; padding:0 28px 60px; color:var(--text-mute); font-size:.84rem;}
+  footer .fr{border-top:1px solid var(--line); padding-top:20px; display:flex; gap:8px 20px; flex-wrap:wrap; align-items:center;}
+  footer code{font-family:var(--fs-mono); font-size:.8rem; background:#e6ecf4; padding:2px 6px; border-radius:4px; color:var(--text-strong);}
+
+  .toast{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink-800); color:#EAF1FB; font-size:.85rem; padding:11px 18px;
+    border-radius:var(--r-sm); border:1px solid rgba(126,178,255,.25);
+    box-shadow:0 12px 32px -8px rgba(7,27,51,.5); opacity:0; pointer-events:none;
+    transition:.3s ease; font-family:var(--fs-mono); z-index:50;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:860px){
+    .shell{grid-template-columns:1fr; gap:24px; padding:28px 18px 70px;}
+    nav.side{display:none;}
+    .hero-inner{padding:36px 18px 28px;}
+    .hero-top{gap:26px;}
+    .gauge{gap:16px;}
+    .node-tag{font-size:.58rem;}
+    .save-note{margin-left:0; width:100%;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important; animation:none !important;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-top">
+      <div class="hero-lead">
+        <div class="eyebrow">AWS · Strands · Bedrock · AgentCore</div>
+        <h1>Plan de Estudio<br>Agentes de IA</h1>
+        <p class="thesis">Un agente es, en esencia, <b>un LLM dentro de un loop</b>: razona, llama herramientas, observa y decide el siguiente paso. Este plan va de ese loop a una <b>solución empresarial y monetizable</b>.</p>
+        <div class="hero-meta">
+          <span class="chip">~14 h / semana</span>
+          <span class="chip">~14 semanas</span>
+          <span class="chip">30% teoría · 70% práctica</span>
+        </div>
+      </div>
+      <div class="gauge">
+        <div class="ring-wrap">
+          <svg width="126" height="126" viewBox="0 0 126 126">
+            <circle class="ring-track" cx="63" cy="63" r="54"></circle>
+            <circle class="ring-fill" id="ringFill" cx="63" cy="63" r="54"></circle>
+          </svg>
+          <div class="ring-label">
+            <span class="ring-pct" id="ringPct">0%</span>
+            <span class="ring-sub">Completado</span>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><span class="stat-n" id="stTasks">0/0</span><span class="stat-l">tareas</span></div>
+          <div class="stat"><span class="stat-n" id="stDeliv">0/0</span><span class="stat-l">entregables</span></div>
+          <div class="stat"><span class="stat-n" id="stWeeks">0/14</span><span class="stat-l">semanas</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline">
+      <div class="pipeline-head">Recorrido — cada nodo se enciende al completar la fase</div>
+      <div class="track" id="track">
+        <div class="track-fill" id="trackFill"></div>
+        <!-- nodes injected -->
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="btnExpand">⇕ Expandir / Colapsar todo</button>
+      <button class="btn" id="btnExport">↧ Exportar avance</button>
+      <button class="btn" id="btnImport">↥ Importar</button>
+      <input type="file" id="fileImport" accept="application/json" hidden />
+      <button class="btn danger" id="btnReset">⟲ Reiniciar</button>
+      <span class="save-note">Guardado automático en este navegador · <b id="lastSaved">—</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="side" id="side" aria-label="Fases del plan">
+    <div class="side-head">Fases</div>
+    <!-- side links injected -->
+  </nav>
+
+  <main>
+    <div class="intro">
+      <p class="rule">Regla de oro: distinguir <b>workflows</b> (vos definís los pasos, el LLM rellena) de <b>agentes</b> (el LLM decide el flujo). El 80% de lo que vale en producción son workflows.</p>
+      <p>Leer y ver cursos no te vuelve capaz — la capacidad viene de <b>construir y depurar</b>. Por eso cada fase cierra con un mini-entregable ejecutable. Marcá cada tarea al completarla; tu avance queda guardado en este navegador.</p>
+    </div>
+
+    <div id="phases"><!-- phases injected --></div>
+
+    <section class="section" id="repo">
+      <h2>Curso práctico de referencia</h2>
+      <p class="lead">Repo oficial de AWS Samples — la contraparte hands-on del plan, en el mismo stack. Python 3.10+ · MIT-0 · <a href="https://github.com/aws-samples/sample-getting-started-with-strands-agents-course" target="_blank" rel="noopener">ver en GitHub ↗</a></p>
+      <div class="courses">
+        <div class="course">
+          <h3><span class="ct">Course 1</span> Getting Started with Strands</h3>
+          <p>Fundamentos: inicialización de agentes, system prompts, model providers (Claude/Bedrock), integración S3/DynamoDB, intro a MCP, A2A y observabilidad (LangFuse/RAGAS).</p>
+          <div class="maps">→ Fases 2 · 3 · 6</div>
+        </div>
+        <div class="course">
+          <h3><span class="ct">Course 2</span> Advanced Strands with MCP</h3>
+          <p>SDK avanzado: ciclo de vida y métricas, structured output, thinking mode, hooks event-driven, async/retry, <code style="font-family:var(--fs-mono);font-size:.85em">@tool</code> + MCP (AWS Docs/Pricing), session managers y memoria FAISS/OpenSearch/Mem0 + Knowledge Bases.</p>
+          <div class="maps">→ Fases 2 · 3 · 4</div>
+        </div>
+        <div class="course">
+          <h3><span class="ct">Course 3</span> Building Multi-Agent Systems</h3>
+          <p>Orquestación: swarm intelligence, agent graph, agents-as-tools.</p>
+          <div class="maps">→ Fase 2 (opcional según capstone)</div>
+        </div>
+        <div class="course">
+          <h3><span class="ct">Course 4</span> Production Deployment with AgentCore</h3>
+          <p>Dev vs producción, componentes de AgentCore y despliegue real en AgentCore Runtime con session management e invocación en producción.</p>
+          <div class="maps">→ Fase 5</div>
+        </div>
+      </div>
+      <div class="callout"><b>Nota de stack:</b> el Course 2 usa API key de Anthropic por defecto — corré esos labs apuntando al provider de <b>Bedrock</b> para mantenernos Bedrock-first. El Course 4 exige cuenta AWS + Claude 3.5 Haiku habilitado + política <code style="font-family:var(--fs-mono);font-size:.85em">BedrockAgentCoreFullAccess</code>.</div>
+    </section>
+
+    <section class="section" id="cronograma">
+      <h2>Cronograma</h2>
+      <p class="lead">14 h/semana → ~14 semanas. Si una semana rendís menos, todo se corre hacia adelante sin drama.</p>
+      <div class="weeks-list" id="weeks"><!-- weeks injected --></div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <div class="fr">
+    <span>Fuente de verdad: <code>plan-estudio-agentes-ia.md</code></span>
+    <span>·</span>
+    <span>Objetivo final: solución de agentes empresarial, multi-tenant y monetizable (AWS Marketplace).</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= DATA ================= */
+const PHASES = [
+  {
+    id:"pre", tag:"PRE", title:"Prerrequisitos", weeks:"Verificar antes de empezar",
+    objective:"Si alguno flojea, atajalo primero o tropezás en las Fases 2–4.",
+    items:[
+      {t:"Python intermedio, especialmente async/await (Strands y Bedrock lo usan intensamente)"},
+      {t:"APIs REST, JSON, manejo de errores y excepciones"},
+      {t:"Fundamentos de AWS/IAM: cuentas, roles, políticas, least-privilege"},
+      {t:"Git y entornos virtuales (venv / poetry / uv)"},
+      {t:"Pydantic — validación de datos, base para structured outputs", h:"https://docs.pydantic.dev/"},
+    ]
+  },
+  {
+    id:"f0", tag:"00", title:"Modelo mental + Prompt engineering", weeks:"Semanas 1–2",
+    objective:"Entender qué es un agente y dominar el skill que más impacta: escribir buenos prompts y descripciones de herramientas.",
+    reading:[
+      {t:"Anthropic — Building effective agents (texto fundacional)", h:"https://www.anthropic.com/engineering/building-effective-agents"},
+      {t:"Anthropic — Guía de prompt engineering", h:"https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview"},
+    ],
+    courses:[
+      {t:"Skill Builder — Foundations of Prompt Engineering (~1 h)", h:"https://explore.skillbuilder.aws/learn/course/17763/foundations-of-prompt-engineering"},
+      {t:"Skill Builder — Fundamentals of Prompt Engineering with Claude", h:"https://skillbuilder.aws/learn/TU33983VQ7/fundamentals-of-prompt-engineering-with-claude/SB2G63EBUR"},
+    ],
+    deliverable:"Un system prompt + 2 tool specs bien escritas, probadas en el playground de Bedrock."
+  },
+  {
+    id:"f1", tag:"01", title:"Fundamentos de LLM en Python", weeks:"Semanas 1–2",
+    objective:"Hablar directo con un modelo vía API, sin frameworks. Herramienta: Boto3 → Bedrock, Converse API.",
+    reading:[
+      {t:"Getting started con Converse API en Python", h:"https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started-api-ex-python.html"},
+      {t:"Ejemplos de código Bedrock Runtime (tool use con Converse)", h:"https://docs.aws.amazon.com/code-library/latest/ug/python_3_bedrock-runtime_code_examples.html"},
+    ],
+    courses:[
+      {t:"Skill Builder — Getting Started with Amazon Bedrock", h:"https://explore.skillbuilder.aws/learn/course/external/view/elearning/17508/getting-started-with-amazon-bedrock"},
+    ],
+    deliverable:"El loop agéntico a mano (~80 líneas): prompt + 2 tools → el modelo pide una → la ejecutás → devolvés resultado → repetís."
+  },
+  {
+    id:"f2", tag:"02", title:"Un framework: Strands Agents", weeks:"Semanas 3–4",
+    objective:"Dominar UN framework. Strands es el SDK open-source de AWS en Python, agnóstico de modelo, el que mejor se integra con AgentCore.",
+    reading:[
+      {t:"Documentación de Strands Agents", h:"https://strandsagents.com/"},
+      {t:"Provider de Bedrock en Strands (config, token counting)", h:"https://strandsagents.com/docs/user-guide/concepts/model-providers/amazon-bedrock/"},
+      {t:"Desplegar Strands en AgentCore", h:"https://strandsagents.com/docs/user-guide/deploy/deploy_to_bedrock_agentcore/"},
+    ],
+    courses:[
+      {t:"Repo — Course 1: Fundamentos de Strands", h:"https://github.com/aws-samples/sample-getting-started-with-strands-agents-course"},
+      {t:"Repo — Course 2, Labs 1–3 y 5: SDK avanzado, hooks/async/retry, session managers"},
+      {t:"Repo — Course 3: orquestación multi-agente (swarm, graph, agents-as-tools)", opt:true},
+    ],
+    deliverable:"Un agente en Strands con 3+ tools, memoria de sesión y salida validada con Pydantic."
+  },
+  {
+    id:"f3", tag:"03", title:"MCP: Model Context Protocol", weeks:"Semanas 4–5",
+    objective:"Conectar agentes a sistemas reales (APIs, DBs, servicios internos). El «USB-C de la IA».",
+    reading:[
+      {t:"Documentación oficial de MCP", h:"https://modelcontextprotocol.io"},
+      {t:"Roadmap de MCP (identidad + seguridad enterprise)", h:"https://blog.modelcontextprotocol.io/posts/mcp-roadmap"},
+    ],
+    courses:[
+      {t:"Repo — Course 1, Lab 4: MCP & Tools (calculadora/clima)"},
+      {t:"Repo — Course 2, Lab 4: @tool + MCP (AWS Docs/Pricing), self-extending agents"},
+    ],
+    deliverable:"Un servidor MCP propio que exponga una API interna como herramienta, consumido por tu agente de la Fase 2."
+  },
+  {
+    id:"f4", tag:"04", title:"RAG y grounding con Knowledge Bases", weeks:"Semanas 6–7",
+    objective:"Dar al agente conocimiento propietario y actualizado. Casi toda solución empresarial lo necesita.",
+    reading:[
+      {t:"Bedrock Knowledge Bases (cómo funciona y tipos)", h:"https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html"},
+      {t:"Grounding y RAG (guía prescriptiva, enfoque enterprise)", h:"https://docs.aws.amazon.com/prescriptive-guidance/latest/agentic-ai-serverless/grounding-and-rag.html"},
+    ],
+    courses:[
+      {t:"Lab — Build and Evaluate RAG con Knowledge Bases", h:"https://explore.skillbuilder.aws/learn/course/external/view/elearning/21658/lab-build-and-evaluate-retrieval-augmented-generation-rag-applications-using-knowledge-bases-for-amazon-bedrock"},
+      {t:"Skill Builder — Generative AI: Amazon Bedrock (Advanced)", h:"https://explore.skillbuilder.aws/learn/courses/22256/generative-ai-amazon-bedrock-advanced"},
+      {t:"Repo — Course 2, Lab 6: memoria persistente + Knowledge Bases (FAISS/OpenSearch/Mem0)"},
+    ],
+    deliverable:"Agente que responde citando una base de conocimiento propia (RAG), con evaluación básica de precisión."
+  },
+  {
+    id:"f5", tag:"05", title:"De demo a producción con AgentCore", weeks:"Semanas 7–9",
+    objective:"Operar agentes con escala, seguridad y observabilidad. Terreno natural para perfil cloud.",
+    reading:[
+      {t:"¿Qué es Bedrock AgentCore? (dev guide)", h:"https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html"},
+      {t:"AgentCore en la guía prescriptiva de AWS", h:"https://docs.aws.amazon.com/prescriptive-guidance/latest/agentic-ai-frameworks/amazon-bedrock-agent-core.html"},
+    ],
+    courses:[
+      {t:"Skill Builder — Building GenAI Applications Using Amazon Bedrock", h:"https://skillbuilder.aws/learn/TM4ZAXTGEZ/building-generative-ai-applications-using-amazon-bedrock/WM6Z6ZHU7K"},
+      {t:"Agentic AI Technical Learning Plan (+15 h · el plato fuerte · badge)", h:"https://aws.amazon.com/blogs/apn/introducing-the-agentic-ai-technical-learning-plan-in-aws-skill-builder"},
+      {t:"Skill Builder — Building Production-Ready AI Agents with AgentCore", h:"https://skillbuilder.aws/learn/4G7V8NQB5B/building-productionready-ai-agents-with-amazon-bedrock-agentcore/7DY16CFWTC"},
+      {t:"Repo — Course 4: deployment real en AgentCore Runtime"},
+    ],
+    deliverable:"Agente desplegado en AgentCore Runtime con Identity + Observability activos."
+  },
+  {
+    id:"f6", tag:"06", title:"Confiabilidad, evals y seguridad", weeks:"Semanas 10–11",
+    objective:"Lo que separa un demo de una solución empresarial vendible.",
+    items:[
+      {t:"Confiabilidad: reintentos, manejo de errores, timeouts, idempotencia, fallbacks entre modelos"},
+      {t:"Structured outputs con Pydantic + validación"},
+      {t:"Human-in-the-loop: flujos de aprobación y niveles de autonomía (sugerir / actuar-con-confirmación / actuar-y-notificar)"},
+      {t:"Evals: datasets de prueba, LLM-as-judge, métricas"},
+      {t:"Observabilidad: AgentCore Observability (CloudWatch + OpenTelemetry) o Langfuse", h:"https://langfuse.com/docs"},
+      {t:"Seguridad: least-privilege, prompt injection, kill switches, audit logging"},
+      {t:"EU AI Act (transparencia y alto riesgo vigentes desde ago-2026)"},
+      {t:"Repo — Course 1, Lab 6: tracing con LangFuse + evals con RAGAS"},
+    ],
+    deliverable:"Suite de evals + guardrails + dashboard de tracing + human-in-the-loop sobre tu agente."
+  },
+  {
+    id:"f7", tag:"07", title:"Nivel empresarial y monetización", weeks:"Semanas 12",
+    objective:"Diseñar soluciones vendibles y llevarlas al mercado. Lo que convierte «saber construir agentes» en «un negocio de agentes».",
+    items:[
+      {t:"AWS Well-Architected — Generative AI Lens", h:"https://docs.aws.amazon.com/wellarchitected/latest/generative-ai-lens/generative-ai-lens.html"},
+      {t:"Multi-tenancy, aislamiento de tenants, data partitioning (fundamentos SaaS)"},
+      {t:"Economía unitaria / FinOps: costo por request vs precio, tokens, prompt caching, margen, costo por tenant"},
+      {t:"Listar agentes de IA como SaaS en AWS Marketplace", h:"https://docs.aws.amazon.com/marketplace/latest/userguide/listing-saas-ai-agents.html"},
+      {t:"AI for Software Companies (cómo los ISV monetizan IA)", h:"https://aws.amazon.com/isv/ai-for-software-companies"},
+      {t:"AWS ISV Accelerate (co-sell con AWS)", h:"https://aws.amazon.com/partners/programs/isv-accelerate"},
+    ],
+    deliverable:"Un one-pager: arquitectura Well-Architected + modelo de pricing + plan de listado en Marketplace."
+  },
+  {
+    id:"cap", tag:"CAP", title:"Proyecto integrador (capstone)", weeks:"Semanas 13–14",
+    objective:"Un agente de soporte/documentación empresarial que toca todo el stack y es base de un producto monetizable.",
+    items:[
+      {t:"Consulta una base de conocimiento propia (RAG con Knowledge Bases)"},
+      {t:"Ejecuta acciones vía una API interna expuesta como servidor MCP"},
+      {t:"Se despliega en AgentCore Runtime con Identity y Observability"},
+      {t:"Tiene evals + guardrails + tracing"},
+      {t:"Está diseñado como SaaS multi-tenant listable en Marketplace"},
+    ],
+    deliverable:"Solución SaaS multi-tenant completa, de punta a punta."
+  },
+];
+
+const WEEKS = [
+  {n:1,  t:"Prerrequisitos + Fase 0 (prompts, lecturas)", m:"Prompts y tool specs OK"},
+  {n:2,  t:"Fase 0 fin + Fase 1 (loop a mano)", m:"🎯 Loop agéntico con Converse API"},
+  {n:3,  t:"Fase 2 — Strands (parte 1) · repo: Course 1"},
+  {n:4,  t:"Fase 2 fin + Fase 3 — MCP (inicio) · repo: Course 2 Labs 1-5", m:"Agente Strands con tools + memoria"},
+  {n:5,  t:"Fase 3 — MCP (fin) · repo: C1 L4 + C2 L4", m:"🎯 Servidor MCP propio en Python"},
+  {n:6,  t:"Fase 4 — RAG / Knowledge Bases (parte 1) · repo: Course 2 Lab 6"},
+  {n:7,  t:"Fase 4 fin + Fase 5 — AgentCore (inicio)", m:"Agente con RAG citando base propia"},
+  {n:8,  t:"Fase 5 — AgentCore + Agentic Learning Plan · repo: Course 4"},
+  {n:9,  t:"Fase 5 (fin)", m:"🎯🚀 Primer agente en AgentCore"},
+  {n:10, t:"Fase 6 — evals, HITL, seguridad (parte 1)"},
+  {n:11, t:"Fase 6 fin + Fase 7 (inicio)", m:"Evals + guardrails + tracing + HITL"},
+  {n:12, t:"Fase 7 — empresarial + FinOps + monetización", m:"Well-Architected + plan de pricing"},
+  {n:13, t:"Capstone (parte 1)"},
+  {n:14, t:"Capstone (fin)", m:"🎯🚀 SaaS multi-tenant completa"},
+];
+
+/* ================= STATE ================= */
+const KEY = "plan-agentes-ia:v1";
+let state = load();
+
+function load(){
+  try{ const raw = localStorage.getItem(KEY); if(raw) return JSON.parse(raw); }catch(e){}
+  return {checks:{}, notes:{}, weeks:{}, updated:null};
+}
+function save(){
+  state.updated = new Date().toISOString();
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+  renderSaved();
+}
+
+/* build stable ids: each phase item + deliverable */
+function phaseItemIds(p){
+  const ids = [];
+  (p.reading||[]).forEach((_,i)=>ids.push(p.id+":r"+i));
+  (p.courses||[]).forEach((_,i)=>ids.push(p.id+":c"+i));
+  (p.items||[]).forEach((_,i)=>ids.push(p.id+":i"+i));
+  if(p.deliverable) ids.push(p.id+":d");
+  return ids;
+}
+function phaseProgress(p){
+  const ids = phaseItemIds(p);
+  const done = ids.filter(id=>state.checks[id]).length;
+  return {done, total:ids.length, pct: ids.length? Math.round(done/ids.length*100):0};
+}
+
+/* ================= RENDER ================= */
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+function itemRow(id, text, {href, deliv, opt}={}){
+  const checked = state.checks[id] ? "checked" : "";
+  const cls = "item" + (deliv?" deliv":"") + (opt?" opt":"");
+  const link = href ? ` <a class="lk" href="${href}" target="_blank" rel="noopener">abrir ↗</a>` : "";
+  return `<div class="${cls}">
+    <input type="checkbox" id="${id}" ${checked} data-check="${id}" aria-label="${esc(text)}"/>
+    <label for="${id}">${esc(text)}${link}</label>
+  </div>`;
+}
+
+function renderPhases(){
+  const host = document.getElementById("phases");
+  host.innerHTML = PHASES.map(p=>{
+    const pr = phaseProgress(p);
+    const dataState = pr.pct===100 ? "done" : (pr.pct>0?"partial":"none");
+    let body = `<div class="objective">${esc(p.objective)}</div>`;
+
+    if(p.reading){
+      body += `<div class="subhead">Lectura</div><div class="items">` +
+        p.reading.map((r,i)=>itemRow(p.id+":r"+i, r.t, {href:r.h})).join("") + `</div>`;
+    }
+    if(p.courses){
+      body += `<div class="subhead">Cursos y labs</div><div class="items">` +
+        p.courses.map((c,i)=>itemRow(p.id+":c"+i, c.t, {href:c.h, opt:c.opt})).join("") + `</div>`;
+    }
+    if(p.items){
+      body += `<div class="subhead">${p.reading||p.courses?"Temas":"Checklist"}</div><div class="items">` +
+        p.items.map((it,i)=>itemRow(p.id+":i"+i, it.t, {href:it.h})).join("") + `</div>`;
+    }
+    if(p.deliverable){
+      body += `<div class="items">` + itemRow(p.id+":d", p.deliverable, {deliv:true}) + `</div>`;
+    }
+    const note = state.notes[p.id] ? esc(state.notes[p.id]) : "";
+    body += `<div class="notes">
+        <label for="note-${p.id}">Notas</label>
+        <textarea id="note-${p.id}" data-note="${p.id}" placeholder="Aprendizajes, bloqueos, links propios…">${note}</textarea>
+      </div>`;
+
+    return `<details class="phase" id="phase-${p.id}" data-state="${dataState}" ${pr.pct>0&&pr.pct<100?"open":""} ${p.id==="pre"?"open":""}>
+      <summary class="phase-head">
+        <span class="num">${p.tag}</span>
+        <span class="htitle"><h2>${esc(p.title)}</h2><div class="weeks">${esc(p.weeks)}</div></span>
+        <span class="hprog">
+          <span class="bar"><i style="width:${pr.pct}%"></i></span>
+          <span class="p">${pr.pct}%</span>
+        </span>
+        <svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="phase-body">${body}</div>
+    </details>`;
+  }).join("");
+}
+
+function renderSide(){
+  const side = document.getElementById("side");
+  const links = PHASES.map(p=>{
+    const pr = phaseProgress(p);
+    return `<a class="side-link ${pr.pct===100?"complete":""}" href="#phase-${p.id}">
+      <span class="side-tag">${p.tag}</span>
+      <span>${esc(p.title.length>24?p.title.slice(0,22)+"…":p.title)}</span>
+      <span class="side-pct">${pr.pct===100?"✓":pr.pct+"%"}</span>
+    </a>`;
+  }).join("");
+  side.innerHTML = `<div class="side-head">Fases</div>` + links;
+}
+
+function renderTrack(){
+  const track = document.getElementById("track");
+  const fill = document.getElementById("trackFill");
+  [...track.querySelectorAll(".node")].forEach(n=>n.remove());
+  const frag = document.createDocumentFragment();
+  PHASES.forEach(p=>{
+    const pr = phaseProgress(p);
+    const st = pr.pct===100?"done":(pr.pct>0?"partial":"none");
+    const b = document.createElement("button");
+    b.className="node"; b.dataset.state=st; b.type="button";
+    b.title = `${p.title} — ${pr.pct}%`;
+    b.innerHTML = `<span class="node-dot"></span><span class="node-tag">${p.tag}</span>`;
+    b.addEventListener("click",()=>{
+      const el=document.getElementById("phase-"+p.id); el.open=true;
+      el.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+    frag.appendChild(b);
+  });
+  track.appendChild(frag);
+  // fill up to last completed phase
+  const done = PHASES.map(phaseProgress).map(x=>x.pct===100);
+  let lastDone = -1; done.forEach((d,i)=>{ if(d) lastDone=i; });
+  const n = PHASES.length;
+  const pctFill = lastDone<0 ? 0 : (lastDone/(n-1))*100;
+  fill.style.width = `calc(${pctFill}% )`;
+}
+
+function renderWeeks(){
+  const host = document.getElementById("weeks");
+  host.innerHTML = WEEKS.map(w=>{
+    const id="w"+w.n; const checked=state.weeks[id]?"checked":"";
+    const hit = w.m && w.m.includes("🎯");
+    return `<label class="wk ${hit?"hit":""}" for="${id}">
+      <input type="checkbox" id="${id}" ${checked} data-week="${id}" aria-label="Semana ${w.n}"/>
+      <span class="wn">Sem ${String(w.n).padStart(2,"0")}</span>
+      <span class="wf">${esc(w.t)}</span>
+      ${w.m?`<span class="milestone">${esc(w.m)}</span>`:"<span></span>"}
+    </label>`;
+  }).join("");
+}
+
+function renderTotals(){
+  let tasksTotal=0, tasksDone=0, delivTotal=0, delivDone=0;
+  PHASES.forEach(p=>{
+    phaseItemIds(p).forEach(id=>{
+      const isDeliv = id.endsWith(":d");
+      if(isDeliv){delivTotal++; if(state.checks[id])delivDone++;}
+      else{tasksTotal++; if(state.checks[id])tasksDone++;}
+    });
+  });
+  const grandTotal = tasksTotal+delivTotal;
+  const grandDone = tasksDone+delivDone;
+  const pct = grandTotal? Math.round(grandDone/grandTotal*100):0;
+
+  document.getElementById("stTasks").textContent = tasksDone+"/"+tasksTotal;
+  document.getElementById("stDeliv").textContent = delivDone+"/"+delivTotal;
+  const wDone = Object.values(state.weeks).filter(Boolean).length;
+  document.getElementById("stWeeks").textContent = wDone+"/14";
+
+  document.getElementById("ringPct").textContent = pct+"%";
+  const r=54, circ=2*Math.PI*r;
+  const ring=document.getElementById("ringFill");
+  ring.style.strokeDasharray=circ;
+  ring.style.strokeDashoffset=circ*(1-pct/100);
+}
+
+function renderSaved(){
+  const el=document.getElementById("lastSaved");
+  if(!state.updated){ el.textContent="sin cambios aún"; return; }
+  const d=new Date(state.updated);
+  el.textContent = d.toLocaleDateString("es",{day:"2-digit",month:"short"}) + " " +
+    d.toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
+}
+
+function renderAll(){ renderPhases(); renderSide(); renderTrack(); renderWeeks(); renderTotals(); renderSaved(); }
+
+/* light refresh (no re-render of open state / focus) */
+function refreshProgress(){
+  PHASES.forEach(p=>{
+    const pr=phaseProgress(p);
+    const det=document.getElementById("phase-"+p.id);
+    if(det){
+      det.dataset.state = pr.pct===100?"done":(pr.pct>0?"partial":"none");
+      det.querySelector(".bar > i").style.width=pr.pct+"%";
+      det.querySelector(".hprog .p").textContent=pr.pct+"%";
+    }
+  });
+  renderSide(); renderTrack(); renderTotals();
+}
+
+/* ================= EVENTS ================= */
+document.addEventListener("change", e=>{
+  const t=e.target;
+  if(t.dataset.check){
+    if(t.checked) state.checks[t.dataset.check]=true; else delete state.checks[t.dataset.check];
+    save(); refreshProgress();
+  } else if(t.dataset.week){
+    if(t.checked) state.weeks[t.dataset.week]=true; else delete state.weeks[t.dataset.week];
+    save(); renderTotals();
+    const wk=t.closest(".wk");
+  }
+});
+document.addEventListener("input", e=>{
+  if(e.target.dataset.note){
+    const id=e.target.dataset.note;
+    const v=e.target.value;
+    if(v.trim()) state.notes[id]=v; else delete state.notes[id];
+    clearTimeout(window.__nt); window.__nt=setTimeout(save,500);
+  }
+});
+
+let allOpen=true;
+document.getElementById("btnExpand").addEventListener("click",()=>{
+  allOpen=!allOpen;
+  document.querySelectorAll("details.phase").forEach(d=>d.open=allOpen);
+});
+document.getElementById("btnExport").addEventListener("click",()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const stamp=new Date().toISOString().slice(0,10);
+  a.href=url; a.download="plan-agentes-avance-"+stamp+".json"; a.click();
+  URL.revokeObjectURL(url);
+  toast("Avance exportado");
+});
+document.getElementById("btnImport").addEventListener("click",()=>document.getElementById("fileImport").click());
+document.getElementById("fileImport").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const data=JSON.parse(rd.result);
+      state={checks:data.checks||{}, notes:data.notes||{}, weeks:data.weeks||{}, updated:data.updated||null};
+      save(); renderAll(); toast("Avance importado");
+    }catch(err){ toast("Archivo inválido"); }
+  };
+  rd.readAsText(f);
+  e.target.value="";
+});
+document.getElementById("btnReset").addEventListener("click",()=>{
+  if(confirm("¿Reiniciar todo el avance guardado? Esta acción no se puede deshacer.")){
+    state={checks:{}, notes:{}, weeks:{}, updated:null};
+    try{localStorage.removeItem(KEY);}catch(e){}
+    renderAll(); toast("Avance reiniciado");
+  }
+});
+
+let toastT;
+function toast(msg){
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("show"),2200);
+}
+
+/* ================= INIT ================= */
+renderAll();
+</script>
+</body>
+</html>

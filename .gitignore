@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Claude Code local settings (permisos/prefs de esta máquina)
+.claude/settings.local.json
+
+# Andamiaje de skills/agentes de la herramienta (no es contenido del plan)
+.agents/
+.claude/skills/
+skills-lock.json
+
+# Entornos Python (a medida que aparezca código)
+.venv/
+__pycache__/
+*.pyc
+.env
